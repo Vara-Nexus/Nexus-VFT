@@ -8,9 +8,9 @@ const NEW_ADMIN_ID: u64 = 43;
 const NON_ADMIN_ID: u64 = 44;
 
 const TOKEN_OWNER_ID_A: u64 = 45;
-const TOKEN_OWNER_ID_B: u64 = 45;
+const TOKEN_OWNER_ID_B: u64 = 46;
 
-const ACTOR_ID: u64 = 42;
+const ACTOR_ID: u64 = 47;
 
 use nexus_vft_client::{
     traits::{NexusVftFactory, NexusVft},
@@ -77,7 +77,7 @@ async fn nexus_vft_works() {
         .await
         .unwrap();
 
-    assert_eq!(balance_total, 500000_000000000000000100u128.into());
+    assert_eq!(balance_total, 1000000_000000000000000100u128.into());
 }
 
 
@@ -191,4 +191,43 @@ async fn init_vft() {
         .unwrap();
     assert!(mint_result);
 
+    // Test the `balances` method
+    let balances = service_client
+        .balances()
+        .recv(program_id)
+        .await
+        .unwrap();
+    println!("balances: {:?}", balances);
+    assert_eq!(balances.len(), 2);
+    assert_eq!(balances[0].0, TOKEN_OWNER_ID_A.into());
+    assert_eq!(balances[0].1, 500000_000000000000000000u128.into());
+    assert_eq!(balances[1].0, TOKEN_OWNER_ID_B.into());
+    assert_eq!(balances[1].1, 500000_000000000000000000u128.into());
+
 }
+
+// #[tokio::test]
+// async fn test_create_vft() {
+//     let remoting = GTestRemoting::new(ADMIN_ID.into());
+//     remoting.system().init_logger();
+//
+//     // Submit program code into the system
+//     let program_code_id = remoting.system().submit_code(nexus_vft::WASM_BINARY);
+//
+//     let program_factory = nexus_vft_client::NexusVftFactory::new(remoting.clone());
+//
+//     // Initialize with ADMIN_ID as the first admin
+//     let program_id = program_factory
+//         .new()
+//         .send_recv(program_code_id, b"salt")
+//         .await
+//         .unwrap();
+//
+//     let mut service_client = nexus_vft_client::NexusVft::new(remoting.clone());
+//
+//     let mint_result = service_client
+//         .create_vft()
+//         .send_recv(program_id)
+//         .await
+//         .unwrap();
+// }

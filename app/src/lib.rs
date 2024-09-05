@@ -21,21 +21,6 @@ pub enum Event {
     InitVft { name: String, symbol: String, decimals: u8, initial_balances: Vec<(ActorId, U256)> },
 }
 
-// #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Encode, Decode, TypeInfo)]
-// pub enum Event {
-//     Approval {
-//         owner: ActorId,
-//         spender: ActorId,
-//         value: U256,
-//     },
-//     Transfer {
-//         from: ActorId,
-//         to: ActorId,
-//         value: U256,
-//     },
-// }
-
-
 #[derive(Clone)]
 pub struct NexusVftService {
     vft: VftService,
@@ -138,7 +123,7 @@ impl NexusVftService {
     pub fn create_vft(&mut self) -> ActorId {
         let code_id: CodeId = msg::load().expect("Unable to load");
         let (init_message_id, new_program_id) =
-            prog::create_program_bytes(code_id, "salt0830".as_bytes(), b"New", 0)
+            prog::create_program_bytes(code_id, "salt".as_bytes(), b"NEW", 0)
                 .expect("Unable to create a program");
         new_program_id
     }
@@ -186,6 +171,10 @@ impl NexusVftService {
     // For vft service
     pub fn balance_of(&self, account: ActorId) -> U256 {
         self.vft.balance_of(account)
+    }
+
+    pub fn balances(&self) -> Vec<(ActorId, U256)> {
+        Storage::balances().iter().map(|(k, v)| (*k, *v)).collect()
     }
 
     pub fn approve(&mut self, spender: ActorId, value: U256) -> bool {
